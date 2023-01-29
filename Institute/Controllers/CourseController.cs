@@ -1,21 +1,29 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Infrastructur.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Institute.Controllers
 {
     public class CourseController : Controller
     {
-        // GET: CourseController
+        private readonly ICourseRepository _courseRepository;
+        public CourseController(ICourseRepository repository)
+        {
+            _courseRepository = repository;
+        }
+        [HttpGet("GetCourses")]
         public ActionResult Index()
         {
-
-            return View();
+           var result= _courseRepository.GetCourses();
+            return View(result);
         }
 
         // GET: CourseController/Details/5
+        [HttpGet("GetCourseParticipant")]
         public ActionResult Details(int id)
         {
-            return View();
+            var result = _courseRepository.GetCouresParticipant(id);
+            return View(result);
         }
 
         // GET: CourseController/Create
@@ -27,10 +35,11 @@ namespace Institute.Controllers
         // POST: CourseController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult AddStudentToCourse(string studentId,int CourseId)
         {
             try
             {
+               var result= _courseRepository.AddStudentToCourse(studentId, CourseId);
                 return RedirectToAction(nameof(Index));
             }
             catch

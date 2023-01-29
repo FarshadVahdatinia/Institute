@@ -16,6 +16,7 @@ namespace Infrastructur
 
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<UserCourse> UserCourses { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
