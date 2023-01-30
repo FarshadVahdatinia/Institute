@@ -18,11 +18,7 @@ namespace Infrastructur
             _dbcontext = dbContext;
         }
 
-        /// <summary>
-        /// متد کورس های هر دانشجو
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+
         public async Task<List<StudentCoursesDto>> GetStudentsCourse(string id)
         {
             var query = _dbcontext.UserCourses.Include(c => c.Student)
@@ -38,11 +34,7 @@ namespace Infrastructur
 
         }
 
-        /// <summary>
-        /// متد دانشجویان حاضر در هر کورس
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+
         public async Task<List<StudentInCourses>> GetCouresParticipant(int id)
         {
             var query = _dbcontext.UserCourses.Include(x => x.Student).Where(x => x.CourseId == id).AsNoTracking()
@@ -50,12 +42,29 @@ namespace Infrastructur
                 {
                     id = x.StudentId,
                     UserName = x.Student.UserName,
-                    IsConfirmed = x.IsConfirmed
-                });
+                    IsConfirmed = x.IsConfirmed ? "تایید" :"در انتظار تایید"
+                }).OrderBy(x=>x.IsConfirmed);
             return await query.ToListAsync();
         }
 
-        public async Task<List<StudentInCourses>> AddStudentToCourse(string Studentid, int CourseId)
+        public async Task<List<StudentInCourses>> GetRemainStudents(int id)
+        {
+            var allStudents =await GetStudents();
+            var participants =await _dbcontext.UserCourses.Include(x => x.Student).Where(x => x.CourseId == id).AsNoTracking().Select(
+                x=>new User
+                {
+                    Id = x.StudentId,
+                    Email = x.Student.Email,
+                    UserName = x.Student.UserName,
+                    PhoneNumber = x.Student.PhoneNumber,
+                }).ToListAsync();
+            var getRemainStudents =allStudents.Intersect(participants)
+
+            
+            return await query.ToListAsync();
+        }
+
+        public async Task AddStudentToCourse(string Studentid, int CourseId)
         {
             var userCourse = new UserCourse()
             {
@@ -64,14 +73,14 @@ namespace Infrastructur
             };
             await _dbcontext.UserCourses.AddAsync(userCourse);
 
-            var query = _dbcontext.UserCourses.Include(x => x.Student).Where(x => x.CourseId == CourseId).AsNoTracking()
-                  .Select(x => new StudentInCourses
-                  {
-                      id = x.StudentId,
-                      UserName = x.Student.UserName,
-                      IsConfirmed = x.IsConfirmed
-                  });
-            return await query.ToListAsync();
+            //var query = _dbcontext.UserCourses.Include(x => x.Student).Where(x => x.CourseId == CourseId).AsNoTracking()
+            //      .Select(x => new StudentInCourses
+            //      {
+            //          id = x.StudentId,
+            //          UserName = x.Student.UserName,
+            //          IsConfirmed = x.IsConfirmed
+            //      });
+            //return await query.ToListAsync();
 
         }
 

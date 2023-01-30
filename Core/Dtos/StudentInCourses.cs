@@ -10,6 +10,6 @@ namespace Core.Dtos
     {
         public string id { get; set; }
         public string UserName { get; set; }
-        public bool IsConfirmed { get; set; }
+        public string IsConfirmed { get; set; }
     }
 }
